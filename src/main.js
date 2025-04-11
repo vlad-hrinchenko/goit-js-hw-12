@@ -12,7 +12,9 @@ const loader = document.getElementById("loader");
 let currentQuery = "";
 let currentPage = 1;
 const perPage = 15;
+let totalHits = 0;
 
+// Функція для старту нового пошуку
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const query = searchInput.value.trim();
@@ -25,19 +27,19 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
-  // Очищаємо галерею перед кожним новим пошуком
+  // Очищаємо галерею та скидаємо сторінку на 1
   clearGallery();
-  hideLoadMore(); // Сховуємо кнопку "Load more" при пошуку
-  showLoader(); // Показуємо індикатор завантаження
+  hideLoadMore();
+  showLoader();
 
   currentQuery = query;
-  currentPage = 1; // Скидаємо сторінку до першої
+  currentPage = 1; // Reset page to 1 for new search
 
-  // Отримуємо зображення
-  const { hits, totalHits } = await getImagesByQuery(query, currentPage, perPage);
-  hideLoader(); // Ховаємо індикатор після завантаження
+  // Отримуємо перші 15 зображень
+  const data = await getImagesByQuery(query, currentPage, perPage);
+  hideLoader();
 
-  if (hits.length === 0) {
+  if (data.hits.length === 0) {
     iziToast.error({
       title: "Error",
       message: "Sorry, there are no images matching your search query. Please try again!",
@@ -45,11 +47,13 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
-  // Додаємо нові зображення
-  createGallery(hits);
+  // Додаємо зображення в галерею
+  totalHits = data.totalHits;
+  createGallery(data.hits);
 
+  // Перевіряємо, чи є ще зображення
   if (currentPage * perPage < totalHits) {
-    showLoadMore(); // Показуємо кнопку "Load more", якщо є ще зображення
+    showLoadMore(); // Показуємо кнопку Load More, якщо є ще зображення
   } else {
     hideLoadMore();
     iziToast.info({
@@ -58,22 +62,25 @@ form.addEventListener("submit", async (event) => {
     });
   }
 
-  // Плавне прокручування після завантаження зображень
+  // Плавне прокручування до нових зображень
   scrollToNewImages();
 });
 
+// Завантаження нових зображень при натисканні Load More
 loadMoreBtn.addEventListener("click", async () => {
-  currentPage += 1; // Збільшуємо номер сторінки
-  showLoaderUnderButton(); // Показуємо індикатор для кнопки
+  currentPage += 1;
+  showLoaderUnderButton();
 
-  const { hits, totalHits } = await getImagesByQuery(currentQuery, currentPage, perPage);
-  hideLoaderUnderButton(); // Ховаємо індикатор
+  // Отримуємо нові зображення для наступної сторінки
+  const data = await getImagesByQuery(currentQuery, currentPage, perPage);
+  hideLoaderUnderButton();
 
   // Додаємо нові зображення до існуючих
-  createGallery(hits);
+  createGallery(data.hits);
 
+  // Перевіряємо, чи є ще зображення
   if (currentPage * perPage >= totalHits) {
-    hideLoadMore(); // Ховаємо кнопку, якщо більше немає зображень
+    hideLoadMore();
     iziToast.info({
       title: "Info",
       message: "We're sorry, but you've reached the end of search results.",
@@ -84,19 +91,19 @@ loadMoreBtn.addEventListener("click", async () => {
   scrollToNewImages();
 });
 
-// Функція для плавного прокручування сторінки
+// Плавне прокручування
 function scrollToNewImages() {
-  const firstImageCard = gallery.querySelector("li"); // перший елемент в галереї
-  if (firstImageCard) {
-    const cardHeight = firstImageCard.getBoundingClientRect().height;
+  const lastImageCard = gallery.querySelector("li:last-child");  // остання картка в галереї
+  if (lastImageCard) {
+    const cardHeight = lastImageCard.getBoundingClientRect().height;
     window.scrollBy({
-      top: cardHeight * 2, // прокручування на дві висоти картки
-      behavior: "smooth", // плавна анімація
+      top: cardHeight * 2, // Прокручуємо вниз на 2 висоти картки
+      behavior: "smooth", // Плавна прокрутка
     });
   }
 }
 
-// Show/hide button and loader under it
+// Показати/сховати кнопку Load More
 function showLoadMore() {
   loadMoreBtn.hidden = false;
 }
@@ -105,6 +112,7 @@ function hideLoadMore() {
   loadMoreBtn.hidden = true;
 }
 
+// Показати/сховати індикатор завантаження під кнопкою
 function showLoaderUnderButton() {
   loader.classList.add("visible");
 }

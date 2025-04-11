@@ -4,7 +4,7 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 const galleryContainer = document.querySelector(".gallery");
 const loader = document.querySelector(".loader");
 
-const lightbox = new SimpleLightbox(".gallery a");
+let lightbox;
 
 export function createGallery(images) {
   const markup = images
@@ -18,9 +18,16 @@ export function createGallery(images) {
     </a>`
     )
     .join("");
-    
-  galleryContainer.innerHTML = markup;
-  lightbox.refresh();
+
+  // Додаємо новий контент до існуючого
+  galleryContainer.insertAdjacentHTML("beforeend", markup);
+
+  // Ініціалізація або оновлення SimpleLightbox
+  if (!lightbox) {
+    lightbox = new SimpleLightbox(".gallery a");
+  } else {
+    lightbox.refresh(); // Оновлюємо lightbox після додавання нових елементів
+  }
 }
 
 export function clearGallery() {
