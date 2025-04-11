@@ -93,7 +93,7 @@ loadMoreBtn.addEventListener("click", async () => {
 
 // Плавне прокручування
 function scrollToNewImages() {
-  const lastImageCard = gallery.querySelector("li:last-child");  // остання картка в галереї
+  const lastImageCard = gallery.querySelector(".gallery-item:last-child");  // остання картка в галереї
   if (lastImageCard) {
     const cardHeight = lastImageCard.getBoundingClientRect().height;
     window.scrollBy({
