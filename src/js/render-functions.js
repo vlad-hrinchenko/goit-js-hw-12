@@ -19,14 +19,12 @@ export function createGallery(images) {
     )
     .join("");
 
-  // Додаємо новий контент до існуючого
   galleryContainer.insertAdjacentHTML("beforeend", markup);
 
-  // Ініціалізація або оновлення SimpleLightbox
   if (!lightbox) {
     lightbox = new SimpleLightbox(".gallery a");
   } else {
-    lightbox.refresh(); // Оновлюємо lightbox після додавання нових елементів
+    lightbox.refresh(); 
   }
 }
 

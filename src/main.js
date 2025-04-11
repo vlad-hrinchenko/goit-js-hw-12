@@ -14,7 +14,7 @@ let currentPage = 1;
 const perPage = 15;
 let totalHits = 0;
 
-// Функція для старту нового пошуку
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const query = searchInput.value.trim();
@@ -27,15 +27,15 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
-  // Очищаємо галерею та скидаємо сторінку на 1
+  
   clearGallery();
   hideLoadMore();
   showLoader();
 
   currentQuery = query;
-  currentPage = 1; // Reset page to 1 for new search
+  currentPage = 1; 
 
-  // Отримуємо перші 15 зображень
+ 
   const data = await getImagesByQuery(query, currentPage, perPage);
   hideLoader();
 
@@ -47,13 +47,13 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
-  // Додаємо зображення в галерею
+ 
   totalHits = data.totalHits;
   createGallery(data.hits);
 
-  // Перевіряємо, чи є ще зображення
+ 
   if (currentPage * perPage < totalHits) {
-    showLoadMore(); // Показуємо кнопку Load More, якщо є ще зображення
+    showLoadMore(); 
   } else {
     hideLoadMore();
     iziToast.info({
@@ -62,23 +62,19 @@ form.addEventListener("submit", async (event) => {
     });
   }
 
-  // Плавне прокручування до нових зображень
+  
   scrollToNewImages();
 });
 
-// Завантаження нових зображень при натисканні Load More
 loadMoreBtn.addEventListener("click", async () => {
   currentPage += 1;
   showLoaderUnderButton();
 
-  // Отримуємо нові зображення для наступної сторінки
   const data = await getImagesByQuery(currentQuery, currentPage, perPage);
   hideLoaderUnderButton();
 
-  // Додаємо нові зображення до існуючих
   createGallery(data.hits);
 
-  // Перевіряємо, чи є ще зображення
   if (currentPage * perPage >= totalHits) {
     hideLoadMore();
     iziToast.info({
@@ -87,23 +83,20 @@ loadMoreBtn.addEventListener("click", async () => {
     });
   }
 
-  // Плавне прокручування після додавання нових зображень
   scrollToNewImages();
 });
 
-// Плавне прокручування
 function scrollToNewImages() {
   const lastImageCard = gallery.querySelector(".gallery-item:last-child");  // остання картка в галереї
   if (lastImageCard) {
     const cardHeight = lastImageCard.getBoundingClientRect().height;
     window.scrollBy({
-      top: cardHeight * 2, // Прокручуємо вниз на 2 висоти картки
-      behavior: "smooth", // Плавна прокрутка
+      top: cardHeight * 2, 
+      behavior: "smooth", 
     });
   }
 }
 
-// Показати/сховати кнопку Load More
 function showLoadMore() {
   loadMoreBtn.hidden = false;
 }
@@ -112,7 +105,6 @@ function hideLoadMore() {
   loadMoreBtn.hidden = true;
 }
 
-// Показати/сховати індикатор завантаження під кнопкою
 function showLoaderUnderButton() {
   loader.classList.add("visible");
 }
